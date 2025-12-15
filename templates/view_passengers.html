@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Passengers{% endblock %}
+
+{% block content %}
+<h2>All Passengers</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Name</th>
+        <th>Passport</th>
+        <th>Flight</th>
+    </tr>
+
+    {% for p in passengers %}
+    <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.username }}</td>
+        <td>{{ p.name }}</td>
+        <td>{{ p.passport_number }}</td>
+        <td>{{ p.flight_number }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

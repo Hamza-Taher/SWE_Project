@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Pilots{% endblock %}
+
+{% block content %}
+<h2>All Pilots</h2>
+
+<table border="1" cellpadding="8">
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+    </tr>
+
+    {% for p in pilots %}
+    <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.username }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="POST">
+    <label>Username:</label><br>
+    <input type="text" name="username" required><br><br>
+
+    <label>Password:</label><br>
+    <input type="password" name="password" required><br><br>
+
+    <button type="submit">Login</button>
+</form>
+
+<p>Test accounts:</p>
+<ul>
+    <li>Admin: admin / adminpass</li>
+    <li>Pilot: pilot1 / pilotpass</li>
+    <li>Crew: crew1 / crewpass</li>
+    <li>Any other username -> passenger</li>
+</ul>
+
+{% endblock %}
