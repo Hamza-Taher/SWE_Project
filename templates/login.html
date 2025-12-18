@@ -4,22 +4,16 @@
 
 {% block content %}
 <h2>Login</h2>
-<form method="POST">
-    <label>Username:</label><br>
-    <input type="text" name="username" required><br><br>
 
-    <label>Password:</label><br>
-    <input type="password" name="password" required><br><br>
+<div class="form-container">
+    <form method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
 
-    <button type="submit">Login</button>
-</form>
+        <label>Password</label>
+        <input type="password" name="password" required>
 
-<p>Test accounts:</p>
-<ul>
-    <li>Admin: admin / adminpass</li>
-    <li>Pilot: pilot1 / pilotpass</li>
-    <li>Crew: crew1 / crewpass</li>
-    <li>Any other username -> passenger</li>
-</ul>
-
+        <button type="submit">Login</button>
+    </form>
+</div>
 {% endblock %}

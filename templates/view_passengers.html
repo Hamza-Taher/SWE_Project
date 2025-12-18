@@ -5,12 +5,14 @@
 {% block content %}
 <h2>All Passengers</h2>
 
-<table border="1" cellpadding="8">
+<table>
     <tr>
         <th>ID</th>
         <th>Username</th>
         <th>Name</th>
+        <th>Email</th>
         <th>Passport</th>
+        <th>Phone</th>
         <th>Flight</th>
     </tr>
 
@@ -18,8 +20,10 @@
     <tr>
         <td>{{ p.id }}</td>
         <td>{{ p.username }}</td>
-        <td>{{ p.name }}</td>
+        <td>{{ p.first_name }} {{ p.last_name }}</td>
+        <td>{{ p.email }}</td>
         <td>{{ p.passport_number }}</td>
+        <td>{{ p.phone_number }}</td>
         <td>{{ p.flight_number }}</td>
     </tr>
     {% endfor %}

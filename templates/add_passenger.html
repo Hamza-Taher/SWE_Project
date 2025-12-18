@@ -1,21 +1,19 @@
 {% extends "base.html" %}
 
-{% block title %}Add Passenger{% endblock %}
+{% block title %}Passenger Dashboard{% endblock %}
 
 {% block content %}
-<h2>Add Passenger</h2>
-<p>Logged in as passenger: {{ username }}</p>
+<h2>Passenger Dashboard</h2>
+
+<p><strong>Name:</strong> {{ passenger.first_name }} {{ passenger.last_name }}</p>
+<p><strong>Email:</strong> {{ passenger.email }}</p>
+<p><strong>Passport:</strong> {{ passenger.passport_number }}</p>
+<p><strong>Phone:</strong> {{ passenger.phone_number }}</p>
 
 <form method="POST">
-    <label>Full Name:</label><br>
-    <input type="text" name="name" required><br><br>
+    <label>Flight Number</label>
+    <input type="text" name="flight_number" value="{{ passenger.flight_number or '' }}" required>
 
-    <label>Passport Number:</label><br>
-    <input type="text" name="passport_number" required><br><br>
-
-    <label>Flight Number:</label><br>
-    <input type="text" name="flight_number" required><br><br>
-
-    <button type="submit">Add Passenger</button>
+    <button type="submit">Save Flight Info</button>
 </form>
 {% endblock %}
