@@ -1,0 +1,31 @@
+name: Check Python & MySQL
+
+on:
+  push:
+    branches: [ main, ProtoType ]
+  pull_request:
+
+jobs:
+  check-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Python installation
+        run: |
+          if command -v python >/dev/null 2>&1; then
+            echo "Python is installed"
+            python --version
+          else
+            echo "Python is NOT installed"
+            exit 1
+          fi
+
+      - name: Check MySQL installation
+        run: |
+          if command -v mysql >/dev/null 2>&1; then
+            echo "MySQL is installed"
+            mysql --version
+          else
+            echo "MySQL is NOT installed"
+            exit 1
+          fi
