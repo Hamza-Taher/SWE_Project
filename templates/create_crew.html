@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Create Crew{% endblock %}
+
+{% block content %}
+<h2>Create Crew Account</h2>
+
+<div class="form-container">
+    <form method="POST">
+
+        <label>First Name</label>
+        <input type="text" name="first_name" required>
+
+        <label>Last Name</label>
+        <input type="text" name="last_name" required>
+
+        <label>Passport Number</label>
+        <input type="text" name="passport_number" required>
+
+        <label>Phone Number</label>
+        <input type="text" name="phone_number" required>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Create Crew Member</button>
+    </form>
+</div>
+{% endblock %}

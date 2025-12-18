@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Crew Members{% endblock %}
+
+{% block content %}
+<h2>All Crew Members</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Name</th>
+        <th>Passport</th>
+        <th>Phone</th>
+    </tr>
+
+    {% for c in crews %}
+    <tr>
+        <td>{{ c.id }}</td>
+        <td>{{ c.username }}</td>
+        <td>{{ c.first_name }} {{ c.last_name }}</td>
+        <td>{{ c.passport_number }}</td>
+        <td>{{ c.phone_number }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
