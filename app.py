@@ -9,6 +9,7 @@ from models.pilot import Pilot
 from models.crew import Crew
 from models.plane import Plane
 from models.seat import Seat
+from models.flight import Flight
 
 app = Flask(__name__)
 app.secret_key = "secret_key_here"
@@ -376,31 +377,59 @@ def add_passenger():
     username = session.get('username')
     cur = mysql.connection.cursor()
 
+    # Get passenger info
     cur.execute("SELECT * FROM passenger WHERE username = %s", [username])
-    passenger_row = cur.fetchone()
+    row = cur.fetchone()
 
-    # Convert DB row → Passenger object (optional but clean)
     passenger = Passenger(
-        username=passenger_row["username"],
-        first_name=passenger_row["first_name"],
-        last_name=passenger_row["last_name"],
-        email=passenger_row["email"],
-        passport_number=passenger_row["passport_number"],
-        phone_number=passenger_row["phone_number"],
-         flight_number=passenger_row["flight_number"]
+        username=row["username"],
+        first_name=row["first_name"],
+        last_name=row["last_name"],
+        email=row["email"],
+        passport_number=row["passport_number"],
+        phone_number=row["phone_number"],
+        flight_number=row.get("flight_number") if "flight_number" in row else None
     )
 
+    # Handle update
     if request.method == 'POST':
         flight_number = request.form['flight_number']
         cur.execute("UPDATE passenger SET flight_number = %s WHERE username = %s",
                     (flight_number, username))
         mysql.connection.commit()
-        cur.close()
-        flash("Flight information updated!", "success")
+        flash("Flight updated!", "success")
         return redirect(url_for('add_passenger'))
 
+    # Fetch available flights (destination airport + date)
+    cur.execute("""
+        SELECT f.id, a.name AS destination, f.flight_date, f.departure_time, f.arrival_time
+        FROM flight f
+        INNER JOIN airport a ON f.dest_id = a.id
+        ORDER BY f.flight_date, f.departure_time
+    """)
+    flights = cur.fetchall()
     cur.close()
-    return render_template("add_passenger.html", passenger=passenger)
+
+    return render_template("add_passenger.html", passenger=passenger, flights=flights)
+#---------------------------------------------------------
+# PASSENGER VIEWS FLIGHTS
+#---------------------------------------------------------
+@app.route('/add_passenger/flights')
+def passenger_flights():
+    if session.get('role') != 'user':
+        return redirect(url_for('login'))
+
+    cur = mysql.connection.cursor()
+    cur.execute("""
+        SELECT f.id, a.name AS destination, f.flight_date, f.departure_time, f.arrival_time
+        FROM flight f
+        INNER JOIN airport a ON f.dest_id = a.id
+        ORDER BY f.flight_date, f.departure_time
+    """)
+    flights = cur.fetchall()
+    cur.close()
+
+    return render_template("passenger_flight.html", flights=flights)
 # ---------------------------------------------------------
 # ADMIN CREATES AIRPORT
 # ---------------------------------------------------------
@@ -431,7 +460,66 @@ def create_airport():
         return redirect(url_for('admin'))
 
     return render_template("create_airport.html")
+# ---------------------------------------------------------
+# ADMIN CREATES FLIGHT
+# ---------------------------------------------------------
+@app.route('/admin/create_flight', methods=['GET', 'POST'])
+def create_flight():
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
 
+    cur = mysql.connection.cursor()
+    # Fetch pilots and planes for dropdowns
+    cur.execute("SELECT id, username FROM pilot")
+    pilots = cur.fetchall()
+    cur.execute("SELECT id, model FROM plane")
+    planes = cur.fetchall()
+    cur.close()
+
+    if request.method == 'POST':
+        source_id = request.form['source_id']
+        dest_id = request.form['dest_id']
+        pilot_id = request.form['pilot_id']
+        plane_id = request.form['plane_id']
+        departure_time = request.form['departure_time']
+        arrival_time = request.form['arrival_time']
+        flight_date = request.form['flight_date']
+        distance_km = request.form['distance_km']
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO flight (source_id, dest_id, pilot_id, plane_id,
+                                departure_time, arrival_time, flight_date, distance_km)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """, (source_id, dest_id, pilot_id, plane_id,
+              departure_time, arrival_time, flight_date, distance_km))
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Flight created successfully!", "success")
+        return redirect(url_for('admin'))
+
+    return render_template("create_flight.html", pilots=pilots, planes=planes)
+#==--------------------------------------------------------
+# USER VIEWS FLIGHTS
+# ---------------------------------------------------------
+@app.route('/flights')
+def flights():
+    if session.get('role') != 'user':
+        return redirect(url_for('login'))
+
+    cur = mysql.connection.cursor()
+    # Join flight with destination airport
+    cur.execute("""
+        SELECT f.id, a.name AS destination, f.flight_date, f.departure_time, f.arrival_time
+        FROM flight f
+        INNER JOIN airport a ON f.dest_id = a.id
+        ORDER BY f.flight_date, f.departure_time
+    """)
+    flights = cur.fetchall()
+    cur.close()
+
+    return render_template("flights.html", flights=flights)
 # ---------------------------------------------------------
 # RUN APP
 # ---------------------------------------------------------

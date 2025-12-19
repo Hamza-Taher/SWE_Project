@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Available Flights{% endblock %}
+
+{% block content %}
+<h2>Available Flights</h2>
+
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Destination</th>
+        <th>Date</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+    </tr>
+    {% for f in flights %}
+    <tr>
+        <td>{{ f.id }}</td>
+        <td>{{ f.destination }}</td>
+        <td>{{ f.flight_date }}</td>
+        <td>{{ f.departure_time }}</td>
+        <td>{{ f.arrival_time }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
