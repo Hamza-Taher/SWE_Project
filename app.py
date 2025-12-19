@@ -7,6 +7,8 @@ from models.user import User
 from models.passenger import Passenger
 from models.pilot import Pilot
 from models.crew import Crew
+from models.plane import Plane
+from models.seat import Seat
 
 app = Flask(__name__)
 app.secret_key = "secret_key_here"
@@ -291,7 +293,54 @@ def view_crews():
     cur.close()
 
     return render_template("view_crews.html", crews=crews)
+# ---------------------------------------------------------
+# ADMIN CREATES PLANE
+# ---------------------------------------------------------
 
+@app.route('/admin/create_plane', methods=['GET', 'POST'])
+def create_plane():
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        model = request.form['model'].strip()
+        capacity = int(request.form['capacity'])
+        seats_A = int(request.form['seats_A'])
+        seats_B = int(request.form['seats_B'])
+        seats_C = int(request.form['seats_C'])
+
+        # Validate seat distribution
+        if seats_A + seats_B + seats_C != capacity:
+            flash("Seat distribution does not match plane capacity!", "error")
+            return redirect(url_for('create_plane'))
+
+        # Insert plane
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO plane (model, capacity, seats_A, seats_B, seats_C)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (model, capacity, seats_A, seats_B, seats_C))
+        mysql.connection.commit()
+
+        plane_id = cur.lastrowid  # get new plane ID
+
+        # Auto-generate seats
+        for _ in range(seats_A):
+            cur.execute("INSERT INTO seat (plane_id, seat_class) VALUES (%s, 'A')", [plane_id])
+
+        for _ in range(seats_B):
+            cur.execute("INSERT INTO seat (plane_id, seat_class) VALUES (%s, 'B')", [plane_id])
+
+        for _ in range(seats_C):
+            cur.execute("INSERT INTO seat (plane_id, seat_class) VALUES (%s, 'C')", [plane_id])
+
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Plane and seats created successfully!", "success")
+        return redirect(url_for('admin'))
+
+    return render_template("create_plane.html")
 
 # ---------------------------------------------------------
 # PILOT DASHBOARD
@@ -352,7 +401,36 @@ def add_passenger():
 
     cur.close()
     return render_template("add_passenger.html", passenger=passenger)
+# ---------------------------------------------------------
+# ADMIN CREATES AIRPORT
+# ---------------------------------------------------------
 
+@app.route('/admin/create_airport', methods=['GET', 'POST'])
+def create_airport():
+    if session.get('role') != 'admin':
+        return redirect(url_for('login'))
+
+    if request.method == 'POST':
+        country = request.form['country'].strip()
+        city = request.form['city'].strip()
+        name = request.form['name'].strip()
+
+        if not all([country, city, name]):
+            flash("All fields are required.", "error")
+            return redirect(url_for('create_airport'))
+
+        cur = mysql.connection.cursor()
+        cur.execute("""
+            INSERT INTO airport (country, city, name)
+            VALUES (%s, %s, %s)
+        """, (country, city, name))
+        mysql.connection.commit()
+        cur.close()
+
+        flash("Airport added successfully!", "success")
+        return redirect(url_for('admin'))
+
+    return render_template("create_airport.html")
 
 # ---------------------------------------------------------
 # RUN APP
