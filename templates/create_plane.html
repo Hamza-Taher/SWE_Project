@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Add Plane{% endblock %}
+
+{% block content %}
+<h2>Add New Plane</h2>
+
+<div class="form-container">
+    <form method="POST">
+
+        <label>Model</label>
+        <input type="text" name="model" required>
+
+        <label>Total Capacity</label>
+        <input type="number" name="capacity" required>
+
+        <label>Seats in Class A</label>
+        <input type="number" name="seats_A" required>
+
+        <label>Seats in Class B</label>
+        <input type="number" name="seats_B" required>
+
+        <label>Seats in Class C</label>
+        <input type="number" name="seats_C" required>
+
+        <button type="submit">Add Plane</button>
+    </form>
+</div>
+{% endblock %}
