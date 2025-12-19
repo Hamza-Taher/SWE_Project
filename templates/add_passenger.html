@@ -10,10 +10,12 @@
 <p><strong>Passport:</strong> {{ passenger.passport_number }}</p>
 <p><strong>Phone:</strong> {{ passenger.phone_number }}</p>
 
-<form method="POST">
+<!-- <form method="POST">
     <label>Flight Number</label>
     <input type="text" name="flight_number" value="{{ passenger.flight_number or '' }}" required>
-
     <button type="submit">Save Flight Info</button>
-</form>
+</form> -->
+
+<hr>
+<a href="{{ url_for('passenger_flights') }}">View Available Flights</a>
 {% endblock %}
