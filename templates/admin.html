@@ -1,17 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Dashboard{% endblock %}
-
 {% block content %}
-<h2>Admin Dashboard</h2>
+<div class="admin-dashboard">
+    <header style="margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
+        <h1>Control Tower: Admin Dashboard</h1>
+        <p>Logged in as: <strong>System Administrator</strong></p>
+    </header>
 
-<div class="admin-menu">
-    <a href="{{ url_for('create_pilot') }}">Create Pilot</a>
-    <a href="{{ url_for('create_crew') }}">Create Crew</a>
-    <a href="{{ url_for('view_passengers') }}">View Passengers</a>
-    <a href="{{ url_for('view_pilots') }}">View Pilots</a>
-    <a href="{{ url_for('view_crews') }}">View Crew</a>
-    <a href="{{ url_for('create_airport') }}">Add Airport</a>
-    <a href="{{ url_for('create_plane') }}">Add Plane</a>
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        
+        <div class="profile-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3>Staff Management</h3>
+            <hr>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <a href="{{ url_for('create_pilot') }}" class="btn btn-primary" style="text-decoration: none; text-align: center;">Register New Pilot</a>
+                <a href="{{ url_for('create_crew') }}" class="btn btn-primary" style="text-decoration: none; text-align: center;">Register New Crew Member</a>
+            </div>
+            <div style="margin-top: 20px; font-size: 0.9rem;">
+                <p><strong>Database View:</strong></p>
+                <ul style="list-style: none; padding: 0;">
+                    <li><a href="{{ url_for('view_pilots') }}">List All Pilots</a></li>
+                    <li><a href="{{ url_for('view_crews') }}">List All Crew Members</a></li>
+                    <li><a href="{{ url_for('view_passengers') }}">List All Passengers</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="profile-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h3>Flight Operations</h3>
+            <hr>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <a href="{{ url_for('create_airport') }}" class="btn" style="background-color: #28a745; color: white; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px;">Add New Airport</a>
+                <a href="{{ url_for('create_plane') }}" class="btn" style="background-color: #28a745; color: white; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px;">Register New Plane</a>
+                <a href="{{ url_for('create_flight') }}" class="btn" style="background-color: #febb02; color: #1a1a1a; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px; font-weight: bold;">Schedule New Flight</a>
+            </div>
+            <div style="margin-top: 20px; font-size: 0.9rem;">
+                <p><strong>Quick Stats:</strong></p>
+                <p>Ensure a Pilot and Plane exist before scheduling a flight to avoid Database Errors.</p>
+            </div>
+        </div>
+
+    </div>
 </div>
 {% endblock %}
