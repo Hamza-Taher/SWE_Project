@@ -2,41 +2,49 @@
 
 {% block content %}
 <div class="admin-dashboard">
-    <header style="margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
-        <h1>Control Tower: Admin Dashboard</h1>
-        <p>Logged in as: <strong>System Administrator</strong></p>
+    <header style="margin-bottom: 30px; border-bottom: 2px solid var(--gold-accent); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1 style="margin: 0; color: var(--airline-navy); font-weight: 800;">ADMIN CONTROL TOWER</h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Logged in as: <strong style="color: var(--airline-navy);">System Administrator</strong></p>
+        </div>
+        <span style="background: var(--airline-navy); color: var(--gold-accent); padding: 5px 15px; border-radius: 20px; font-size: 0.7rem; font-weight: 800;">SECURE ACCESS</span>
     </header>
 
-    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+    <div class="dashboard-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
         
-        <div class="profile-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <h3>Staff Management</h3>
-            <hr>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                <a href="{{ url_for('create_pilot') }}" class="btn btn-primary" style="text-decoration: none; text-align: center;">Register New Pilot</a>
-                <a href="{{ url_for('create_crew') }}" class="btn btn-primary" style="text-decoration: none; text-align: center;">Register New Crew Member</a>
+        <div class="profile-card">
+            <h3 style="display: flex; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <span style="margin-right: 10px;">👥</span> Staff Management
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <a href="{{ url_for('create_pilot') }}" class="btn btn-primary">Register New Pilot</a>
+                <a href="{{ url_for('create_crew') }}" class="btn btn-primary">Register New Crew Member</a>
             </div>
-            <div style="margin-top: 20px; font-size: 0.9rem;">
-                <p><strong>Database View:</strong></p>
-                <ul style="list-style: none; padding: 0;">
-                    <li><a href="{{ url_for('view_pilots') }}">List All Pilots</a></li>
-                    <li><a href="{{ url_for('view_crews') }}">List All Crew Members</a></li>
-                    <li><a href="{{ url_for('view_passengers') }}">List All Passengers</a></li>
-                </ul>
+
+            <div style="margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee;">
+                <h4 style="color: #64748b; font-size: 0.7rem; letter-spacing: 1px; margin-bottom: 15px; text-transform: uppercase; font-weight: 800;">Database Records:</h4>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <a href="{{ url_for('view_pilots') }}" class="btn-utility-gold">List Pilots</a>
+                    <a href="{{ url_for('view_crews') }}" class="btn-utility-gold">List Crew</a>
+                    <a href="{{ url_for('view_passengers') }}" class="btn-utility-gold">List Passengers</a>
+                </div>
             </div>
         </div>
 
-        <div class="profile-card" style="background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <h3>Flight Operations</h3>
-            <hr>
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
-                <a href="{{ url_for('create_airport') }}" class="btn" style="background-color: #28a745; color: white; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px;">Add New Airport</a>
-                <a href="{{ url_for('create_plane') }}" class="btn" style="background-color: #28a745; color: white; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px;">Register New Plane</a>
-                <a href="{{ url_for('create_flight') }}" class="btn" style="background-color: #febb02; color: #1a1a1a; text-decoration: none; text-align: center; padding: 10px; border-radius: 4px; font-weight: bold;">Schedule New Flight</a>
+        <div class="profile-card" style="border-right: 4px solid var(--gold-accent);">
+            <h3 style="display: flex; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                <span style="margin-right: 10px;">✈️</span> Flight Operations
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">
+                <a href="{{ url_for('create_airport') }}" class="btn btn-gold">Add New Airport</a>
+                <a href="{{ url_for('create_plane') }}" class="btn btn-gold">Register New Plane</a>
+                <a href="{{ url_for('create_flight') }}" class="btn btn-gold" style="font-weight: 800; border: 2px solid var(--airline-navy);">Schedule New Flight</a>
             </div>
-            <div style="margin-top: 20px; font-size: 0.9rem;">
-                <p><strong>Quick Stats:</strong></p>
-                <p>Ensure a Pilot and Plane exist before scheduling a flight to avoid Database Errors.</p>
+            
+            <div style="margin-top: 30px; background: #fff9eb; padding: 15px; border-radius: 8px; border: 1px solid #fee2e2;">
+                <p style="margin: 0; font-size: 0.85rem; color: #666">
+                    <strong>Notice:</strong> Aircraft and Pilots must be available in the database before a flight path can be finalized.
+                </p>
             </div>
         </div>
 
