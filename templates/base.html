@@ -1,33 +1,41 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <title>{% block title %}Flight System{% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyHigh Airways | Premium Travel</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <nav>
-    <a href="{{ url_for('home') }}">Home</a>
-
-    {% if session.get('username') %}
-        <span>Logged in as {{ session.get('username') }} ({{ session.get('role') }})</span>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    {% else %}
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register') }}">Sign up</a>
-    {% endif %}
+    <div class="logo">✈ SkyHigh <span style="color:white">Airways</span></div>
+    <div class="links">
+        <a href="{{ url_for('home') }}">Home</a>
+        {% if session.get('username') %}
+            {% if session.get('role') == 'admin' %}
+                <a href="{{ url_for('admin') }}">Dashboard</a>
+            {% elif session.get('role') == 'user' %}
+                <a href="{{ url_for('add_passenger') }}">My Bookings</a>
+            {% endif %}
+            <a href="{{ url_for('logout') }}" style="border: 1px solid var(--gold-accent); padding: 5px 15px; border-radius: 4px; color: var(--gold-accent);">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('register') }}" class="btn btn-gold" style="color: var(--airline-navy); padding: 8px 20px;">Join Club</a>
+        {% endif %}
+    </div>
 </nav>
 
 <div class="container">
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <ul class="flashes">
-          {% for category, message in messages %}
-            <li class="{{ category }}">{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 15px; margin-bottom: 20px; border-radius: 6px; background: {% if category == 'success' %}#d4edda{% else %}#f8d7da{% endif %}; color: {% if category == 'success' %}#155724{% else %}#721c24{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
     {% endwith %}
 
     {% block content %}{% endblock %}
