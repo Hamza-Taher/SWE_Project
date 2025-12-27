@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Your Assigned Flights (Pilot)</h2>
+<table border="1">
+    <tr>
+        <th>Date</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Departure</th>
+        <th>Arrival</th>
+        <th>Aircraft</th>
+        
+    </tr>
+    {% for task in tasks %}
+    <tr>
+        <td>{{ task.flight_date }}</td>
+        <td>{{ task.source_airport }}</td>
+        <td>{{ task.dest_airport }}</td>
+        <td>{{ task.departure_time }}</td>
+        <td>{{ task.arrival_time }}</td>
+        <td>{{ task.plane_model }}</td>
+        
+    </tr>
+    {% endfor %}
+</table>
+<a href="{{ url_for('pilot') }}">Back to Dashboard</a>
+{% endblock %}
