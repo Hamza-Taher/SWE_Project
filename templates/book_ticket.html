@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Book Ticket{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2>Book a Flight Ticket</h2>
+    
+    <form method="POST" action="{{ url_for('book_ticket') }}">
+        <div class="form-group">
+            <label>Flight ID:</label>
+            <input type="number" name="flight_id" required placeholder="Enter Flight ID">
+        </div>
+
+        <div class="form-group">
+            <label>Preferred Seat Class:</label>
+            <select name="seat_class" required>
+                <option value="A">Class A</option>
+                <option value="B">Class B</option>
+                <option value="C">Class C</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn">Confirm and Book</button>
+    </form>
+</div>
+{% endblock %}

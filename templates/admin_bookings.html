@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Available Flights List{% endblock %}
+
+{% block content %}
+<h2>System Available Flights</h2>
+<p>Admin View: Monitoring flight availability.</p>
+
+<table border="1" style="width:100%; text-align:left;">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Route</th>
+            <th>Date</th>
+            <th>Aircraft</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for f in flights %}
+        <tr>
+            <td>#{{ f.id }}</td>
+            <td>{{ f.source }} to {{ f.destination }}</td>
+            <td>{{ f.flight_date }}</td>
+            <td>{{ f.plane }}</td>
+            <td>${{ f.cost }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5">No flights found in system.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br>
+<a href="{{ url_for('admin') }}">Back to Admin Panel</a>
+{% endblock %}

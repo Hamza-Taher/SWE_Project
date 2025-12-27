@@ -1,0 +1,135 @@
+-- Create the database
+CREATE DATABASE rightdatabase;
+USE rightdatabase;
+
+-- -------------------------
+-- Passenger table
+-- -------------------------
+CREATE TABLE passenger (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    passport_number VARCHAR(50) UNIQUE NOT NULL,
+    phone_number VARCHAR(50),
+    flight_number VARCHAR(50) -- optional, can be NULL
+);
+
+-- -------------------------
+-- Pilot table
+-- -------------------------
+CREATE TABLE pilot (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    passport_number VARCHAR(50) UNIQUE NOT NULL,
+    phone_number VARCHAR(50)
+);
+
+-- -------------------------
+-- Crew table
+-- -------------------------
+CREATE TABLE crew (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    passport_number VARCHAR(50) UNIQUE NOT NULL,
+    phone_number VARCHAR(50)
+);
+
+-- -------------------------
+-- Airport table
+-- -------------------------
+CREATE TABLE airport (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    country VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    name VARCHAR(150) NOT NULL
+);
+
+-- -------------------------
+-- Plane table
+-- -------------------------
+CREATE TABLE plane (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    model VARCHAR(100) NOT NULL,
+    capacity INT NOT NULL,
+    seats_A INT NOT NULL,
+    seats_B INT NOT NULL,
+    seats_C INT NOT NULL
+);
+
+-- -------------------------
+-- Seat table - CHOOSE ONE APPROACH:
+-- -------------------------
+
+-- OPTION 1: Using is_available (recommended for your updated Seat class)
+CREATE TABLE seat (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    plane_id INT NOT NULL,
+    seat_class ENUM('A', 'B', 'C') NOT NULL,
+    is_available BOOLEAN DEFAULT TRUE,  -- Use this for your new Seat class
+    FOREIGN KEY (plane_id) REFERENCES plane(id) ON DELETE CASCADE
+);
+
+-- OR OPTION 2: Using status (if you want to keep old logic)
+-- CREATE TABLE seat (
+--     id INT AUTO_INCREMENT PRIMARY KEY,
+--     plane_id INT NOT NULL,
+--     seat_class ENUM('A', 'B', 'C') NOT NULL,
+--     status ENUM('booked', 'available') DEFAULT 'available',
+--     FOREIGN KEY (plane_id) REFERENCES plane(id) ON DELETE CASCADE
+-- );
+
+-- -------------------------
+-- Flight table
+-- -------------------------
+CREATE TABLE flight (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    source_id INT NOT NULL,
+    dest_id INT NOT NULL,
+    pilot_id INT NOT NULL,
+    plane_id INT NOT NULL,
+    departure_time TIME NOT NULL,
+    arrival_time TIME NOT NULL,
+    flight_date DATE NOT NULL,
+    distance_km INT NOT NULL,
+    cost DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (source_id) REFERENCES airport(id),
+    FOREIGN KEY (dest_id) REFERENCES airport(id),
+    FOREIGN KEY (pilot_id) REFERENCES pilot(id),
+    FOREIGN KEY (plane_id) REFERENCES plane(id)
+);
+
+-- -------------------------
+-- Crew-Flight (many-to-many)
+-- -------------------------
+CREATE TABLE crew_flight (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    crew_id INT NOT NULL,
+    flight_id INT NOT NULL,
+    FOREIGN KEY (crew_id) REFERENCES crew(id),
+    FOREIGN KEY (flight_id) REFERENCES flight(id)
+);
+
+-- -------------------------
+-- Ticket table - FIXED VERSION
+-- -------------------------
+CREATE TABLE ticket (
+    id INT AUTO_INCREMENT PRIMARY KEY,  -- ADDED PRIMARY KEY
+    passenger_id INT NOT NULL,
+    flight_id INT NOT NULL,
+    seat_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (passenger_id) REFERENCES passenger(id),
+    FOREIGN KEY (flight_id) REFERENCES flight(id),
+    FOREIGN KEY (seat_id) REFERENCES seat(id)
+);
+
+-- REMOVE THIS LINE: drop table ticket;  -- Don't drop the table!
