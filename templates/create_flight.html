@@ -1,51 +1,80 @@
 {% extends "base.html" %}
 
-{% block title %}Create Flight{% endblock %}
-
 {% block content %}
-<h2>Create New Flight</h2>
+<div class="container">
+    <h2>Schedule New Flight</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label>Source Airport</label>
+            <select name="source_id" required>
+                {% for airport in airports %}
+                <option value="{{ airport.id }}">{{ airport.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Destination Airport</label>
+            <select name="dest_id" required>
+                {% for airport in airports %}
+                <option value="{{ airport.id }}">{{ airport.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-<form method="POST">
-    <label>Source Airport ID</label>
-    <input type="number" name="source_id" required>
+        <div class="form-group">
+            <label>Pilot</label>
+            <select name="pilot_id" required>
+                {% for pilot in pilots %}
+                <option value="{{ pilot.id }}">{{ pilot.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-    <label>Destination Airport ID</label>
-    <input type="number" name="dest_id" required>
+        <div class="form-group">
+            <label>Plane</label>
+            <select name="plane_id" required>
+                {% for plane in planes %}
+                <option value="{{ plane.id }}">{{ plane.model }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="crew_members">Assign Crew Members</label>
+            <select name="crew_members" id="crew_members" multiple style="height: 100px; width: 100%;">
+                {% if crews %}
+                    {% for crew in crews %}
+                        <option value="{{ crew.id }}">{{ crew.username }}</option>
+                    {% endfor %}
+                {% else %}
+                    <option disabled>No crew members registered</option>
+                {% endif %}
+            </select>
+            <small>Hold CTRL (Windows) or CMD (Mac) to select multiple</small>
+        </div>
 
-    <label>Pilot</label>
-    <select name="pilot_id" required>
-        {% for pilot in pilots %}
-        <option value="{{ pilot.id }}">{{ pilot.username }} (ID: {{ pilot.id }})</option>
-        {% endfor %}
-    </select>
+        <div class="form-group">
+            <label>Departure Time</label>
+            <input type="time" name="departure_time" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Arrival Time</label>
+            <input type="time" name="arrival_time" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Flight Date</label>
+            <input type="date" name="flight_date" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Distance (km)</label>
+            <input type="number" name="distance_km" required>
+        </div>
 
-    <label>Plane</label>
-    <select name="plane_id" required>
-        {% for plane in planes %}
-        <option value="{{ plane.id }}">{{ plane.model }} (ID: {{ plane.id }})</option>
-        {% endfor %}
-    </select>
-
-    <label>Departure Time</label>
-    <input type="time" name="departure_time" required>
-
-    <label>Arrival Time</label>
-    <input type="time" name="arrival_time" required>
-
-    <label>Flight Date</label>
-    <input type="date" name="flight_date" required>
-
-    <label>Distance (km)</label>
-    <input type="number" name="distance_km" required>
-
-    <label>Assign Crew Members</label>
-    <select name="crew_ids" multiple required>
-        {% for crew in crews %}
-        <option value="{{ crew.id }}">{{ crew.username }} (ID: {{ crew.id }})</option>
-        {% endfor %}
-    </select>
-    <small>Hold CTRL (Windows) or CMD (Mac) to select multiple</small>
-
-    <button type="submit">Create Flight</button>
-</form>
+        <button type="submit" class="btn btn-primary">Create Flight</button>
+    </form>
+</div>
 {% endblock %}

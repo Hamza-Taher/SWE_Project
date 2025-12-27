@@ -474,6 +474,14 @@ def create_flight():
     pilots = cur.fetchall()
     cur.execute("SELECT id, model FROM plane")
     planes = cur.fetchall()
+    
+    # NEW: Fetch crew members for the "Assign Crew Members" box
+    cur.execute("SELECT id, username FROM crew")
+    crews = cur.fetchall()
+
+    # NEW: Fetch airports for Source and Destination dropdowns
+    cur.execute("SELECT id, name FROM airport")
+    airports = cur.fetchall()
     cur.close()
 
     if request.method == 'POST':
@@ -499,7 +507,9 @@ def create_flight():
         flash("Flight created successfully!", "success")
         return redirect(url_for('admin'))
 
-    return render_template("create_flight.html", pilots=pilots, planes=planes)
+    # Pass everything to the template
+    return render_template("create_flight.html", pilots=pilots, planes=planes, airports=airports, crews=crews)
+
 #==--------------------------------------------------------
 # USER VIEWS FLIGHTS
 # ---------------------------------------------------------
