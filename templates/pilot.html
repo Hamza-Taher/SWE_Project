@@ -1,8 +1,15 @@
 {% extends "base.html" %}
-
-{% block title %}Pilot Dashboard{% endblock %}
-
 {% block content %}
-<h2>Pilot Dashboard</h2>
-<p>Welcome, {{ username }}.</p>
+<div class="container">
+    <header>
+        <h1>Pilot Portal</h1>
+        <p>Welcome back, <strong>{{ username }}</strong>. You are cleared for duty.</p>
+    </header>
+
+    <div class="profile-card" style="margin-top: 20px;">
+        <h3>Today's Assignments</h3>
+        <p><em>No flights currently assigned to your roster.</em></p>
+        <button class="btn btn-primary">Refresh Schedule</button>
+    </div>
+</div>
 {% endblock %}

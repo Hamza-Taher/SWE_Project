@@ -13,8 +13,12 @@
         <div class="logo">✈ SKYHIGH AIRWAYS</div>
         <div class="links">
             <a href="{{ url_for('home') }}">Home</a>
-            {% if session.get('role') == 'admin' %}
+             {% if session.get('role') == 'admin' %}
                 <a href="{{ url_for('admin') }}">Dashboard</a>
+            {% elif session.get('role') == 'pilot' %}
+                <a href="{{ url_for('pilot') }}">Dashboard</a>
+            {% elif session.get('role') == 'crew' %}
+                <a href="{{ url_for('crew') }}">Dashboard</a>
             {% elif session.get('username') %}
                 <a href="{{ url_for('add_passenger') }}">Book Flight</a>
             {% endif %}
