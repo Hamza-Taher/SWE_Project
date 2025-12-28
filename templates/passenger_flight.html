@@ -3,24 +3,36 @@
 {% block title %}Available Flights{% endblock %}
 
 {% block content %}
-<h2>Available Flights</h2>
+<header style="margin-bottom: 20px;">
+    <h2>Available Flights</h2>
+    <p>Explore our global routes and book your next journey.</p>
+</header>
 
 <table>
-    <tr>
-        <th>ID</th>
-        <th>Destination</th>
-        <th>Date</th>
-        <th>Departure</th>
-        <th>Arrival</th>
-    </tr>
-    {% for f in flights %}
-    <tr>
-        <td>{{ f.id }}</td>
-        <td>{{ f.destination }}</td>
-        <td>{{ f.flight_date }}</td>
-        <td>{{ f.departure_time }}</td>
-        <td>{{ f.arrival_time }}</td>
-    </tr>
-    {% endfor %}
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Destination</th>
+            <th>Date</th>
+            <th>Departure</th>
+            <th>Arrival</th>
+            <th>Action</th> </tr>
+    </thead>
+    <tbody>
+        {% for f in flights %}
+        <tr>
+            <td><strong>#{{ f.id }}</strong></td>
+            <td>{{ f.destination }}</td>
+            <td>{{ f.flight_date }}</td>
+            <td>{{ f.departure_time }}</td>
+            <td>{{ f.arrival_time }}</td>
+            <td>
+                <a href="{{ url_for('book_ticket', flight_id=f.id) }}" class="btn-gold" style="padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+                    Book Seat
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}

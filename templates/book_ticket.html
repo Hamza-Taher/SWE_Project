@@ -1,27 +1,62 @@
 {% extends "base.html" %}
-
-{% block title %}Book Ticket{% endblock %}
-
 {% block content %}
-<div class="form-container">
-    <h2>Book a Flight Ticket</h2>
-    
-    <form method="POST" action="{{ url_for('book_ticket') }}">
-        <div class="form-group">
-            <label>Flight ID:</label>
-            <input type="number" name="flight_id" required placeholder="Enter Flight ID">
+<div class="container" style="max-width: 900px; margin: auto; padding: 20px;">
+    <h2 style="color: var(--airline-navy); text-align: center; margin-bottom: 20px;">Choose Your Seat</h2>
+
+    {% if flight %}
+    <div class="profile-card" style="margin-bottom: 30px; border-left: 5px solid var(--gold-accent); background: #fff;">
+        <h4 style="margin: 0;">Flight #{{ flight.id }}</h4>
+        <p style="margin: 5px 0;"><strong>Route:</strong> {{ flight.source }} → {{ flight.destination }}</p>
+        <p style="margin: 0;"><strong>Date:</strong> {{ flight.flight_date }}</p>
+    </div>
+
+    <form method="POST">
+        <input type="hidden" name="flight_id" value="{{ flight.id }}">
+        
+        <h3 style="font-size: 1.1rem; color: #444; margin-bottom: 20px;">Click a seat to select:</h3>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 15px;">
+            {% for seat in seats %}
+                <label style="cursor: pointer;">
+                    <input type="radio" name="seat_id" value="{{ seat.id }}" required style="display: none;" class="seat-radio">
+                    <div class="seat-card" onclick="selectSeat(this)" 
+                         style="border: 2px solid #ddd; padding: 15px; border-radius: 10px; text-align: center; background: white; transition: 0.2s;">
+                        <span style="display: block; font-weight: 900; color: var(--airline-navy);">#{{ seat.id }}</span>
+                        <span style="font-size: 0.75rem; color: #777;">Class {{ seat.seat_class }}</span>
+                    </div>
+                </label>
+            {% else %}
+                <p style="grid-column: 1 / -1; text-align: center; padding: 30px; color: var(--error);">
+                    No seats available for this flight. Please choose another flight.
+                </p>
+            {% endfor %}
         </div>
 
-        <div class="form-group">
-            <label>Preferred Seat Class:</label>
-            <select name="seat_class" required>
-                <option value="A">Class A</option>
-                <option value="B">Class B</option>
-                <option value="C">Class C</option>
-            </select>
-        </div>
-
-        <button type="submit" class="btn">Confirm and Book</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 40px; padding: 18px; font-weight: 800; font-size: 1.1rem;">
+            CONFIRM SEAT SELECTION
+        </button>
     </form>
+
+    {% else %}
+    <div class="card" style="text-align: center; padding: 50px;">
+        <p>No flight selected. Please return to the dashboard.</p>
+        <a href="{{ url_for('add_passenger') }}" class="btn btn-gold">Back to Dashboard</a>
+    </div>
+    {% endif %}
 </div>
+
+<script>
+function selectSeat(element) {
+    // Reset all boxes
+    document.querySelectorAll('.seat-card').forEach(box => {
+        box.style.borderColor = "#ddd";
+        box.style.background = "white";
+        box.style.boxShadow = "none";
+    });
+    // Highlight selected box
+    element.style.borderColor = "var(--gold-accent)";
+    element.style.background = "#fffdf0";
+    element.style.boxShadow = "0 5px 15px rgba(197, 160, 89, 0.2)";
+}
+</script>
 {% endblock %}

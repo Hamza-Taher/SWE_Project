@@ -299,7 +299,6 @@ def view_crews():
 # ---------------------------------------------------------
 
 @app.route('/admin/create_plane', methods=['GET', 'POST'])
-@app.route('/admin/create_plane', methods=['GET', 'POST'])
 def create_plane():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
@@ -326,7 +325,7 @@ def create_plane():
 
         plane_id = cur.lastrowid  # get new plane ID
 
-        # Auto-generate seats - CHANGE HERE: is_available = True (available) initially
+        # Auto-generate seats
         for _ in range(seats_A):
             cur.execute("INSERT INTO seat (plane_id, seat_class, is_available) VALUES (%s, 'A', TRUE)", [plane_id])
 
@@ -343,6 +342,8 @@ def create_plane():
         return redirect(url_for('admin'))
 
     return render_template("create_plane.html")
+
+
 # ---------------------------------------------------------
 # PILOT DASHBOARD
 # ---------------------------------------------------------
@@ -353,9 +354,11 @@ def pilot():
         return redirect(url_for('login'))
     return render_template("pilot.html", username=session.get('username'))
 
+
 # ---------------------------------------------------------
 # CREW DASHBOARD & TASKS
 # ---------------------------------------------------------
+
 @app.route('/crew')
 def crew():
     if session.get('role') != 'crew':
@@ -364,7 +367,6 @@ def crew():
     username = session.get('username')
     cur = mysql.connection.cursor()
 
-    # Get Crew Assigned Flights via the crew_flight many-to-many table
     cur.execute("""
         SELECT f.id, f.flight_date, f.departure_time, f.arrival_time, 
                src.name AS source_airport, dest.name AS dest_airport
@@ -418,38 +420,45 @@ def add_passenger():
         flash("Flight updated!", "success")
         return redirect(url_for('add_passenger'))
 
-    # Fetch available flights (destination airport + date)
+    # PROBLEM SOLVED: Added Date Filtering to hide past flights
     cur.execute("""
         SELECT f.id, a.name AS destination, f.flight_date, f.departure_time, f.arrival_time
         FROM flight f
         INNER JOIN airport a ON f.dest_id = a.id
+        WHERE f.flight_date >= CURDATE()
         ORDER BY f.flight_date, f.departure_time
     """)
     flights = cur.fetchall()
     cur.close()
 
     return render_template("add_passenger.html", passenger=passenger, flights=flights)
-#---------------------------------------------------------
+
+
+# ---------------------------------------------------------
 # PASSENGER VIEWS FLIGHTS
-#---------------------------------------------------------
+# ---------------------------------------------------------
+
 @app.route('/add_passenger/flights')
 def passenger_flights():
     if session.get('role') != 'user':
         return redirect(url_for('login'))
 
     cur = mysql.connection.cursor()
-    # Updated query to include f.cost
+    # PROBLEM SOLVED: Added Date Filtering here as well
     cur.execute("""
         SELECT f.id, a.name AS destination, f.flight_date, f.departure_time,
                  f.arrival_time, f.cost
         FROM flight f
         INNER JOIN airport a ON f.dest_id = a.id
+        WHERE f.flight_date >= CURDATE()
         ORDER BY f.flight_date, f.departure_time
     """)
     flights = cur.fetchall()
     cur.close()
 
     return render_template("passenger_flight.html", flights=flights)
+
+
 # ---------------------------------------------------------
 # ADMIN CREATES AIRPORT
 # ---------------------------------------------------------
@@ -480,22 +489,28 @@ def create_airport():
         return redirect(url_for('admin'))
 
     return render_template("create_airport.html")
+
+
 # ---------------------------------------------------------
 # ADMIN CREATES FLIGHT
 # ---------------------------------------------------------
+
 @app.route('/admin/create_flight', methods=['GET', 'POST'])
 def create_flight():
     if session.get('role') != 'admin':
         return redirect(url_for('login'))
 
     cur = mysql.connection.cursor()
-    # Fetch pilots, planes, and airports for the dropdown menus
     cur.execute("SELECT id, username FROM pilot")
     pilots = cur.fetchall()
     cur.execute("SELECT id, model FROM plane")
     planes = cur.fetchall()
     cur.execute("SELECT id, name, city FROM airport")
     airports = cur.fetchall()
+    
+    # PROBLEM SOLVED: Added this line to fetch the crew members so they appear in the dropbox
+    cur.execute("SELECT id, username FROM crew")
+    crews = cur.fetchall()
     cur.close()
 
     if request.method == 'POST':
@@ -507,32 +522,43 @@ def create_flight():
         arrival_time = request.form['arrival_time']
         flight_date = request.form['flight_date']
         distance_km = request.form['distance_km']
-        cost = request.form['cost'] # New field collected from form
+        cost = request.form.get('cost', 0) 
+        crew_ids = request.form.getlist('crew_ids') 
 
         cur = mysql.connection.cursor()
+        # 2. Insert the flight first
         cur.execute("""
             INSERT INTO flight (source_id, dest_id, pilot_id, plane_id,
                                 departure_time, arrival_time, flight_date, distance_km, cost)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (source_id, dest_id, pilot_id, plane_id,
-              departure_time, arrival_time, flight_date, distance_km, cost))
+        """, (source_id, dest_id, pilot_id, plane_id, departure_time, arrival_time, flight_date, distance_km, cost))
+        
+        flight_id = cur.lastrowid # Get the ID of the flight we just made
+
+        # 3. LINK THE CREW: This is the part that makes flights appear in the portal!
+        for c_id in crew_ids:
+            cur.execute("INSERT INTO crew_flight (crew_id, flight_id) VALUES (%s, %s)", (c_id, flight_id))
+
         mysql.connection.commit()
         cur.close()
-
-        flash("Flight created successfully with cost!", "success")
+        flash("Flight created and crew assigned!", "success")
         return redirect(url_for('admin'))
 
-    return render_template("create_flight.html", pilots=pilots, planes=planes, airports=airports)
-#==--------------------------------------------------------
+    # PROBLEM SOLVED: You MUST pass 'crews' here so the HTML can see them
+    return render_template("create_flight.html", pilots=pilots, planes=planes, airports=airports, crews=crews)
+
+
+# ---------------------------------------------------------
 # USER VIEWS FLIGHTS
 # ---------------------------------------------------------
+
 @app.route('/flights')
 def flights():
     if session.get('role') != 'user':
         return redirect(url_for('login'))
 
     cur = mysql.connection.cursor()
-    # Joined airport table twice: once for Source (src) and once for Destination (dest)
+    # PROBLEM SOLVED: Added Date Filtering to hide past flights
     cur.execute("""
         SELECT f.id, 
                src.name AS source, 
@@ -544,6 +570,7 @@ def flights():
         FROM flight f
         INNER JOIN airport src ON f.source_id = src.id
         INNER JOIN airport dest ON f.dest_id = dest.id
+        WHERE f.flight_date >= CURDATE()
         ORDER BY f.flight_date, f.departure_time
     """)
     flights = cur.fetchall()
@@ -563,7 +590,6 @@ def pilot_tasks():
     username = session.get('username')
     cur = mysql.connection.cursor()
 
-    # 1. Get the Pilot's ID from the database using their session username
     cur.execute("SELECT id FROM pilot WHERE username = %s", [username])
     pilot_data = cur.fetchone()
     
@@ -571,8 +597,6 @@ def pilot_tasks():
         flash("Pilot record not found.", "error")
         return redirect(url_for('home'))
 
-    # 2. Fetch all flights assigned to this pilot
-    # We join with the airport table twice (once for Source, once for Destination)
     cur.execute("""
         SELECT f.id, f.flight_date, f.departure_time, f.arrival_time, 
                src.name AS source_airport, dest.name AS dest_airport, p.model as plane_model
@@ -602,7 +626,6 @@ def crew_tasks():
     username = session.get('username')
     cur = mysql.connection.cursor()
 
-    # 1. Get the Crew member's ID
     cur.execute("SELECT id FROM crew WHERE username = %s", [username])
     crew_data = cur.fetchone()
 
@@ -610,7 +633,6 @@ def crew_tasks():
         flash("Crew record not found.", "error")
         return redirect(url_for('home'))
 
-    # 2. Fetch flights from the many-to-many table 'crew_flight'
     cur.execute("""
         SELECT f.id, f.flight_date, f.departure_time, f.arrival_time, 
                src.name AS source_airport, dest.name AS dest_airport
@@ -630,17 +652,51 @@ def crew_tasks():
 # ---------------------------------------------------------
 # PASSENGER BOOKS TICKET
 # ---------------------------------------------------------
+# ---------------------------------------------------------
+# PASSENGER BOOKS SPECIFIC SEAT
+# ---------------------------------------------------------
 @app.route('/book_ticket', methods=['GET', 'POST'])
 def book_ticket():
     if session.get('role') != 'user':
         return redirect(url_for('login'))
 
+    cur = mysql.connection.cursor()
+    
+    # GET: Show the booking form and available seats
+    if request.method == 'GET':
+        flight_id = request.args.get('flight_id')
+        seats = []
+        flight_info = None
+
+        if flight_id:
+            # Fetch flight details
+            cur.execute("""
+                SELECT f.id, src.name as source, dest.name as destination, f.flight_date 
+                FROM flight f
+                JOIN airport src ON f.source_id = src.id
+                JOIN airport dest ON f.dest_id = dest.id
+                WHERE f.id = %s
+            """, [flight_id])
+            flight_info = cur.fetchone()
+
+            # Fetch all available seats for the plane assigned to this flight
+            cur.execute("""
+                SELECT s.id, s.seat_class 
+                FROM seat s
+                JOIN flight f ON s.plane_id = f.plane_id
+                WHERE f.id = %s AND s.is_available = TRUE
+                ORDER BY s.seat_class, s.id
+            """, [flight_id])
+            seats = cur.fetchall()
+
+        cur.close()
+        return render_template("book_ticket.html", seats=seats, flight=flight_info)
+
+    # POST: Process the booking for the specific seat
     if request.method == 'POST':
         flight_id = request.form['flight_id']
-        seat_class = request.form['seat_class']
+        seat_id = request.form['seat_id'] # User picks this now
         username = session.get('username')
-
-        cur = mysql.connection.cursor()
 
         try:
             # 1. Get Passenger ID
@@ -648,46 +704,33 @@ def book_ticket():
             passenger = cur.fetchone()
             passenger_id = passenger['id']
 
-            # 2. Find the first available seat for the plane assigned to this flight
-            # UPDATED: Changed 'status = 'not_booked'' to 'is_available = TRUE'
-            cur.execute("""
-                SELECT s.id 
-                FROM seat s
-                JOIN flight f ON s.plane_id = f.plane_id
-                WHERE f.id = %s AND s.seat_class = %s AND s.is_available = TRUE
-                LIMIT 1
-            """, (flight_id, seat_class))
+            # 2. Check if seat is still available (safety check)
+            cur.execute("SELECT is_available FROM seat WHERE id = %s", [seat_id])
+            seat_check = cur.fetchone()
+
+            if not seat_check or not seat_check['is_available']:
+                flash("Sorry, that seat was just taken. Please pick another.", "error")
+                return redirect(url_for('book_ticket', flight_id=flight_id))
+
+            # 3. TRANSACTION: Insert Ticket and Mark Seat as Booked
+            cur.execute("INSERT INTO ticket (passenger_id, flight_id, seat_id) VALUES (%s, %s, %s)", 
+                        (passenger_id, flight_id, seat_id))
             
-            seat = cur.fetchone()
-
-            if not seat:
-                flash(f"No available seats in Class {seat_class} for this flight.", "error")
-                return redirect(url_for('book_ticket'))
-
-            seat_id = seat['id']
-
-            # 3. TRANSACTION: Create Ticket and Update Seat Availability
-            # Insert into ticket (Ternary Relationship)
-            cur.execute("""
-                INSERT INTO ticket (passenger_id, flight_id, seat_id)
-                VALUES (%s, %s, %s)
-            """, (passenger_id, flight_id, seat_id))
-
-            # UPDATE: Change seat availability to FALSE (not available)
             cur.execute("UPDATE seat SET is_available = FALSE WHERE id = %s", [seat_id])
 
             mysql.connection.commit()
-            flash(f"Ticket booked successfully! Your seat is #{seat_id} (Class {seat_class})", "success")
-            return redirect(url_for('view_tickets'))
+            flash(f"Success! Seat #{seat_id} is booked for your journey.", "success")
+            return redirect(url_for('add_passenger'))
 
         except Exception as e:
             mysql.connection.rollback()
-            flash("An error occurred during booking. Please try again.", "error")
+            flash("An error occurred during booking.", "error")
             print(f"Error: {e}")
         finally:
             cur.close()
 
-    return render_template("book_ticket.html")
+    return redirect(url_for('add_passenger'))
+
 # ---------------------------------------------------------
 # ADMIN VIEWS ALL BOOKINGS
 # ---------------------------------------------------------
@@ -697,7 +740,6 @@ def admin_view_bookings():
         return redirect(url_for('login'))
 
     cur = mysql.connection.cursor()
-    # Only fetching flight details for the admin to see available options
     cur.execute("""
         SELECT f.id, src.name AS source, dest.name AS destination, 
                f.flight_date, f.cost, p.model AS plane

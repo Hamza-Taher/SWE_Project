@@ -1,4 +1,3 @@
-{% extends "base.html" %}
 {% block content %}
 <header style="margin-bottom: 20px;">
     <h1>Passenger Dashboard</h1>
@@ -44,7 +43,7 @@
                 <th>Date</th>
                 <th>Departure</th>
                 <th>Arrival</th>
-            </tr>
+                <th>Action</th> </tr>
         </thead>
         <tbody>
             {% for flight in flights %}
@@ -54,6 +53,11 @@
                 <td>{{ flight.flight_date }}</td>
                 <td>{{ flight.departure_time }}</td>
                 <td>{{ flight.arrival_time }}</td>
+                <td>
+                    <a href="{{ url_for('book_ticket', flight_id=flight.id) }}" class="btn-gold" style="padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.8rem; font-weight: bold;">
+                        Book Seat
+                    </a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
