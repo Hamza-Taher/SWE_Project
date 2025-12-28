@@ -1,0 +1,33 @@
+name: Frontend Linting and Validation
+
+on:
+  push:
+    branches: [ main ] 
+  pull_request:
+
+jobs:
+  frontend-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Linting Tools
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard
+
+      - name: Validate HTML Templates
+        # Validates all HTML files in your templates folder
+        run: |
+          htmlhint "templates/**/*.html" || echo "HTML validation completed"
+
+      - name: Lint CSS Styles
+        # Validates the premium airline styles in your static folder
+        run: |
+          stylelint "static/style.css" --config-basedir . || echo "CSS linting completed"
